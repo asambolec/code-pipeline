@@ -1,0 +1,26 @@
+version: '2.1'
+services:
+  gerrit:
+    container_name: gerrit
+    image: gerritcodereview/gerrit:latest
+    networks:
+      - dev
+    command:  |
+      bash -c "git config -f /var/gerrit/etc/gerrit.config auth.type 'HTTP' && \
+           git config -f /var/gerrit/etc/gerrit.config gerrit.canonicalWebUrl 'http://127.0.0.1:8080' && \
+           git config -f /var/gerrit/etc/gerrit.config gerrit.ui 'POLYGERRIT' && \
+           git config -f /var/gerrit/etc/gerrit.config noteDb.changes.autoMigrate true  && \
+           git config --file /var/gerrit/etc/gerrit.config auth.emailFormat '{0}@splendit.at' && \
+           /var/gerrit/bin/gerrit.sh run"
+  apache:
+    container_name: apache
+    image: "httpd:2.4.35"
+    ports:
+      - 8080:8080
+    volumes:
+      - ${PWD}/httpd.conf:/usr/local/apache2/conf/httpd.conf
+      - ${PWD}/passwords:/usr/local/apache2/passwords
+    networks:
+      - dev
+networks:
+ dev:
